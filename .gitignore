@@ -15,3 +15,6 @@ output/
 
 # tmp files
 tmp/
+
+#direnv
+.envrc
