@@ -3,9 +3,10 @@ from dataclasses import dataclass, field
 
 @dataclass
 class ImageItem:
-    file_name: str
-    media_type: str
-    content: bytes
+    file_name: str | None
+    media_type: str | None
+    content: bytes | None
+    external_url: str | None = None
 
 
 @dataclass

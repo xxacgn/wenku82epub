@@ -36,6 +36,12 @@ ${EXE} -i <book_id> -o output.epub
 ${EXE} -i <book_id> -f
 ```
 
+仅以链接形式显示插图（不打包图片进 EPUB）：
+
+```bash
+${EXE} -i <book_id> -l
+```
+
 根据你的环境安装 `wenku82epub` 并替换上述的 `${EXE}`:
 
 1. `pip`: `pip install git+https://github.com/xxacgn/wenku82epub`，替换 `${EXE}` 为 `wenku82epub`。

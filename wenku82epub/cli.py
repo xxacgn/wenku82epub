@@ -1,6 +1,5 @@
 import argparse
 import mimetypes
-import time
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -24,11 +23,18 @@ def main() -> None:
     parser.add_argument("--input", help="Path to input TXT file")
     parser.add_argument("-o", "--output", help="Path to output EPUB file")
     parser.add_argument("--dry-run", action="store_true", help="Only print outline")
-    parser.add_argument(
+    illustrations_group = parser.add_mutually_exclusive_group()
+    illustrations_group.add_argument(
         "-f",
         "--fetch-illustrations",
         action="store_true",
-        help='Fetch images for chapters named "插图"',
+        help='Fetch images for chapters named "插图" and embed into EPUB',
+    )
+    illustrations_group.add_argument(
+        "-l",
+        "--link-illustrations",
+        action="store_true",
+        help='Link images for chapters named "插图" without embedding',
     )
     args = parser.parse_args()
 
@@ -60,7 +66,7 @@ def main() -> None:
     if args.dry_run:
         return
 
-    if args.fetch_illustrations:
+    if args.fetch_illustrations or args.link_illustrations:
         for volume in volumes:
             for chapter in volume.chapters:
                 if chapter.title.strip() != "插图":
@@ -70,11 +76,22 @@ def main() -> None:
                 chapter_url = urljoin(meta.toc_url, chapter.href)
                 chapter_html = fetch_html(chapter_url)
                 image_urls = extract_image_urls(chapter_html, chapter_url)
-                delay = 0.3
+                if args.link_illustrations:
+                    print(f"插图链接: {volume.title} - {chapter.title}")
+                    for image_url in image_urls:
+                        chapter.images.append(
+                            ImageItem(
+                                file_name=None,
+                                media_type=None,
+                                content=None,
+                                external_url=image_url,
+                            )
+                        )
+                    continue
+
                 for index, image_url in enumerate(
                     tqdm(image_urls, desc=f"插图下载: {volume.title}"), start=1
                 ):
-                    time.sleep(delay)
                     suffix = Path(image_url).suffix or ".jpg"
                     media_type = mimetypes.guess_type(image_url)[0] or "image/jpeg"
                     file_name = (
@@ -88,7 +105,6 @@ def main() -> None:
                             content=image_bytes,
                         )
                     )
-                    delay = min(delay * 1.5, 2.0)
 
     cover_bytes = None
     cover_name = None

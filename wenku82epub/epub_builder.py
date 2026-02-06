@@ -27,8 +27,13 @@ def chapter_to_html(chapter: Chapter) -> str:
         )
 
     images = "".join(
-        f"<div class='illustration'><img src='{img.file_name}' alt='' /></div>"
+        (
+            f"<div class='illustration'><img src='{img.external_url}' alt='' /></div>"
+            if img.external_url
+            else f"<div class='illustration'><img src='{img.file_name}' alt='' /></div>"
+        )
         for img in chapter.images
+        if img.external_url or img.file_name
     )
     if not body and not images:
         body = "<p></p>"
@@ -63,12 +68,14 @@ def build_epub(
         section_chapters: list[epub.EpubHtml] = []
         for chapter in volume.chapters:
             for image_index, image in enumerate(chapter.images, start=1):
+                if image.external_url or not image.content or not image.file_name:
+                    continue
                 image_id = f"img_{chapter_index}_{image_index}"
                 book.add_item(
                     epub.EpubItem(
                         uid=image_id,
                         file_name=image.file_name,
-                        media_type=image.media_type,
+                        media_type=image.media_type or "image/jpeg",
                         content=image.content,
                     )
                 )
