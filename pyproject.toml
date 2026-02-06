@@ -1,0 +1,35 @@
+[project]
+name = "wenku82epub"
+version = "0.0.1"
+description = "Convert Wenku8 TXT files to EPUB format."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "ebooklib>=0.20",
+    "httpx[http2]>=0.28.1",
+    "lxml>=6.0.2",
+    "tqdm>=4.67.3",
+]
+
+[project.scripts]
+wenku82epub = "wenku82epub.cli:main"
+
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["wenku82epub"]
+
+[tool.uv.workspace]
+members = [
+    ".",
+]
+
+[tool.uv.sources]
+wenku82epub = { workspace = true, editable = true }
+
+[dependency-groups]
+dev = [
+    "wenku82epub",
+]
