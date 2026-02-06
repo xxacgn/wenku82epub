@@ -8,17 +8,20 @@ from tqdm import tqdm
 
 from .book_page import parse_book_page
 from .epub_builder import build_epub
-from .http_client import fetch_bytes, fetch_html
+from .http_client import fetch_bytes, fetch_html, fetch_txt
 from .illustrations import extract_image_urls
 from .models import ImageItem
 from .toc import parse_toc
 from .txt_parser import find_missing_titles, parse_txt_with_toc, print_outline
 
+WENKU8_BASE_URL = "https://www.wenku8.net"
+WENKU8_DOWNLOAD_URL = " https://dl1.wenku8.com/txtutf8/"
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Convert TXT to EPUB.")
-    parser.add_argument("input", help="Path to input TXT file")
-    parser.add_argument("-u", "--book-url", required=True, help="Book page URL")
+    parser.add_argument("-i", "--book-id", required=True, help="Book ID on Wenku8")
+    parser.add_argument("--input", help="Path to input TXT file")
     parser.add_argument("-o", "--output", help="Path to output EPUB file")
     parser.add_argument("--dry-run", action="store_true", help="Only print outline")
     parser.add_argument(
@@ -28,14 +31,21 @@ def main() -> None:
         help='Fetch images for chapters named "插图"',
     )
     args = parser.parse_args()
-    input_path = Path(args.input)
 
-    book_html = fetch_html(args.book_url)
-    meta = parse_book_page(book_html, args.book_url)
+    book_url = urljoin(WENKU8_BASE_URL, f"book/{args.book_id}.htm")
+    book_html = fetch_html(book_url)
+    meta = parse_book_page(book_html, book_url)
 
     toc_html = fetch_html(meta.toc_url)
     toc = parse_toc(toc_html)
-    text = input_path.read_text(encoding="utf-8")
+
+    # text = input_path.read_text(encoding="utf-8")
+    if args.input:
+        text = Path(args.input).read_text(encoding="utf-8")
+    else:
+        text = fetch_txt(
+            urljoin(WENKU8_DOWNLOAD_URL, f"{args.book_id[0]}/{args.book_id}.txt")
+        )
 
     missing = find_missing_titles(text, toc)
     if missing:

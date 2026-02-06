@@ -4,8 +4,16 @@ from .models import Chapter, Volume
 from .toc import TocVolume
 
 
+_EQUIVALENT_CHARS = str.maketrans(
+    {
+        "•": "·",
+    }
+)
+
+
 def normalize_title(text: str) -> str:
-    return " ".join(html.unescape(text).split())
+    normalized = html.unescape(text).translate(_EQUIVALENT_CHARS)
+    return " ".join(normalized.split())
 
 
 def parse_txt_with_toc(text: str, toc: list[TocVolume]) -> list[Volume]:

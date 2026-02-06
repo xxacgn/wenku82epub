@@ -7,10 +7,10 @@
 
 ## Features
 
-- [x] 从书籍页面 URL 获取书籍信息
+- [x] 根据书籍 ID 获取 TXT 格式的书籍内容
+- [x] 从书籍页面获取封面、作者和出版商等书籍信息
 - [x] 从目录页面获取章节列表
 - [x] 从“插图”章节页获取插图
-- [ ] 从书籍页面获取下载链接并下载 TXT 文件
 - [ ] 配置退避延迟已避免过快请求导致的 429 错误
 - [ ] 配置 {429, 500, 502, 503, 504} 重试次数
 
@@ -19,19 +19,21 @@
 打印卷/章节标题（不生成 EPUB）：
 
 ```bash
-${EXE} 3519.txt -u "https://www.wenku8.net/book/3519.htm" --dry-run
+${EXE} -i <book_id> --dry-run
 ```
 
 生成 EPUB：
 
 ```bash
-${EXE} 3519.txt -u "https://www.wenku8.net/book/3519.htm" -o output.epub
+${EXE} -i <book_id>
+# 或者 -o 指定输出文件名
+${EXE} -i <book_id> -o output.epub
 ```
 
 生成带插图的 EPUB：
 
 ```bash
-${EXE} 3519.txt -u "https://www.wenku8.net/book/3519.htm" -o output.epub -f
+${EXE} -i <book_id> -f
 ```
 
 根据你的环境安装 `wenku82epub` 并替换上述的 `${EXE}`:

@@ -49,3 +49,7 @@ def fetch_bytes(url: str, retries: int = 3, backoff: float = 0.5) -> bytes:
                     raise
             time.sleep(backoff * (2 ** (attempt - 1)))
         raise RuntimeError("Failed to fetch bytes after retries")
+
+
+def fetch_txt(url: str, encoding: str = "utf-8") -> str:
+    return fetch_html(url, encoding)
